@@ -159,6 +159,9 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 .idea/
 
+.vscode/
 qr_pictures/*
 !qr_pictures/.gitkeep
 *temp.py
+notes.txt
+dining_room.db
