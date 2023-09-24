@@ -13,14 +13,14 @@ qr = qrcode.QRCode(
             error_correction=qrcode.constants.ERROR_CORRECT_L,
             box_size=10,
             border=4,
-        )
+)
+
+
+def get_image(data: str) -> PyPNGImage:
+    qr.clear()
+    qr.add_data(data)
+    return qr.make_image(fill_color='green', back_color='white')
 
 
 def get_images(data: Iterable[str]) -> list[PyPNGImage]:
-    images = []
-    for item in data:
-        qr.clear()
-        qr.add_data(item)
-        img = qr.make_image(fill_color='green', back_color='white')
-        images.append(img)
-    return images
+    return [get_image(item) for item in data]
