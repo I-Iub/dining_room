@@ -1,5 +1,4 @@
 import datetime
-from typing import List
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -24,3 +23,7 @@ class TicketUUID(BaseModel):
 class TicketOut(TicketUUID):
     created: datetime.datetime
     user_uuid: UUID
+
+
+class QRStatus(BaseModel):
+    valid: bool

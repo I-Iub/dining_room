@@ -1,6 +1,9 @@
+import io
 from typing import Iterable
 
+import cv2
 import qrcode
+import numpy as np
 from qrcode.image.pure import PyPNGImage
 
 QR_PICTURES_DIR = '../../qr_pictures/'
@@ -24,3 +27,11 @@ def get_image(data: str) -> PyPNGImage:
 
 def get_images(data: Iterable[str]) -> list[PyPNGImage]:
     return [get_image(item) for item in data]
+
+
+def read_image(buffer: io.BytesIO) -> str:
+    detect = cv2.QRCodeDetector()
+    array = np.frombuffer(buffer.read(), dtype=np.uint8)
+    obj = cv2.imdecode(array, 0)
+    data, *_ = detect.detectAndDecode(obj)
+    return data

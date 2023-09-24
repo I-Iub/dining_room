@@ -1,12 +1,13 @@
 from typing import Any, Optional
 
-from fastapi import APIRouter, Depends, Response, status
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi import APIRouter, Depends, Response, UploadFile, status
+# from fastapi.responses import FileResponse, StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.v1.schemas import TicketOut, TicketUUID, UserIn, UserOut, UserUUID
+from src.api.v1.schemas import QRStatus, TicketOut, TicketUUID, UserIn, UserOut, UserUUID
 from src.db.database import get_session
-from src.services.base import create_qr, create_ticket, create_user, retrieve_tickets, ticket_delete, user_delete
+from src.services.base import (create_qr, create_ticket, create_user, qr_check, retrieve_tickets, ticket_delete,
+                               user_delete)
 
 router = APIRouter()
 
@@ -67,12 +68,18 @@ async def delete_ticket(ticket: TicketUUID, session: AsyncSession = Depends(get_
              status_code=status.HTTP_200_OK,
              summary='Получить QR-код',
              description='Возвращает QR-код')
-async def get_qr(ticket_uuid: TicketUUID, session: AsyncSession = Depends(get_session)) -> Any:  #  -> Response | StreamingResponse:
-    created, payload = await create_qr(ticket_uuid, session)
-    if not created:
-        return payload
-    return Response(content=payload.getvalue(), media_type="image/png")
+async def get_qr(ticket_uuid: TicketUUID, session: AsyncSession = Depends(get_session)) -> Response:
+    return await create_qr(ticket_uuid, session)
     # todo: сделать StreamingResponse
     # def iter_file(file_obj):
     #     yield from file_obj
     # return StreamingResponse(iter_file(payload), media_type='image/png')
+
+
+@router.post('/qr/check',
+             response_model=QRStatus,
+             status_code=status.HTTP_200_OK,
+             summary='Проверить QR-код',
+             description='Проверяет QR-код')
+async def check_qr(file: UploadFile, session: AsyncSession = Depends(get_session)) -> Response:
+    return await qr_check(file, session)
