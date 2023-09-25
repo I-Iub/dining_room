@@ -1,10 +1,8 @@
-import typing
 from logging import config as logging_config
 
 import uvicorn
-from fastapi import FastAPI, Request, Response, status
+from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
-from starlette.responses import StreamingResponse
 
 from src.api.v1 import base
 from src.core import config

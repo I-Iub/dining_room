@@ -25,5 +25,5 @@ class TicketOut(TicketUUID):
     user_uuid: UUID
 
 
-class QRStatus(BaseModel):
-    valid: bool
+class MealIn(BaseModel):
+    id: int

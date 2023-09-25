@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.expression import delete, insert, join, select
 
-from src.api.v1.schemas import TicketUUID, UserUUID
+from src.api.v1.schemas import MealIn, TicketUUID, UserUUID
 from src.core.config import MEALS_LIMIT
 from src.db.database import Base
 from src.models.users import Meal, Ticket, User
@@ -62,7 +62,7 @@ async def create_ticket(user: UserUUID, session: AsyncSession) -> dict[str, Any]
 
 async def retrieve_tickets(session: AsyncSession) -> list[dict[str, Any]]:
     result = await session.execute(select(Ticket))
-    tickets = [ticket.__dict__ for ticket, *_ in result.all()]
+    tickets = [ticket.__dict__ for ticket, *_ in result.unique().all()]
     return tickets
 
 
@@ -90,7 +90,7 @@ async def create_qr(ticket: TicketUUID, session: AsyncSession) -> Response:
     if not is_exists:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
     try:
-        img = get_image(str(ticket))
+        img = get_image(str(ticket.uuid))
     except IndexError:
         return Response(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                         content=make_response_message('Не удалось создать QR-код на основе полученных данных'),
@@ -100,7 +100,11 @@ async def create_qr(ticket: TicketUUID, session: AsyncSession) -> Response:
     return Response(content=file.getvalue(), media_type="image/png")
 
 
-async def qr_check(file: UploadFile, session: AsyncSession) -> Response:
+async def create_meal(file: UploadFile, session: AsyncSession) -> Response:
+    if not file.size:
+        return Response(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                        content=make_response_message('Файл отсутствует или пустой'),
+                        media_type='application/json')
     buffer = io.BytesIO()
     await copyfileobj(file.file, buffer)
     buffer.seek(0)
@@ -127,3 +131,14 @@ async def qr_check(file: UploadFile, session: AsyncSession) -> Response:
     await session.commit()
     return Response(status_code=status.HTTP_200_OK,
                     content=make_response_message('Приём пищи учтён'), media_type='application/json')
+
+
+async def meal_delete(meal: MealIn, session):
+    statement = select(Meal).where(Meal.id == meal.id)
+    result = await session.execute(statement)
+    if result.scalar() is None:
+        return Response(status_code=status.HTTP_404_NOT_FOUND)
+    statement = delete(Meal).where(Meal.id == meal.id)
+    await session.execute(statement)
+    await session.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

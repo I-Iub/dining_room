@@ -6,8 +6,6 @@ import qrcode
 import numpy as np
 from qrcode.image.pure import PyPNGImage
 
-QR_PICTURES_DIR = '../../qr_pictures/'
-
 
 # def get_images(data: Iterable[str]) -> list[PyPNGImage]:
 #     return [type(qrcode.make(item)) for item in data]
