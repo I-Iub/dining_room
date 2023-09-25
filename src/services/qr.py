@@ -29,7 +29,7 @@ def get_images(data: Iterable[str]) -> list[PyPNGImage]:
     return [get_image(item) for item in data]
 
 
-def read_image(buffer: io.BytesIO) -> str:
+def decode(buffer: io.BytesIO) -> str:
     detect = cv2.QRCodeDetector()
     array = np.frombuffer(buffer.read(), dtype=np.uint8)
     obj = cv2.imdecode(array, 0)

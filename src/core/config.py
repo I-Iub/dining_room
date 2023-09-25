@@ -11,6 +11,7 @@ load_dotenv()
 PROJECT_NAME = os.getenv('PROJECT_NAME', 'dining room')
 PROJECT_HOST = os.getenv('PROJECT_HOST', '127.0.0.1')
 PROJECT_PORT = int(os.getenv('PROJECT_PORT', '8080'))
+MEALS_LIMIT = 2
 
 DSN = os.getenv(
     'DSN', 'sqlite+aiosqlite:///dining_room.db'

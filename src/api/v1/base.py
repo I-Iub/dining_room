@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.v1.schemas import QRStatus, TicketOut, TicketUUID, UserIn, UserOut, UserUUID
 from src.db.database import get_session
-from src.services.base import (create_qr, create_ticket, create_user, qr_check, retrieve_tickets, ticket_delete,
-                               user_delete)
+from src.services.base import (create_qr, create_ticket, create_user, qr_check, retrieve_tickets,
+                               ticket_delete, user_delete)
 
 router = APIRouter()
 
@@ -76,10 +76,10 @@ async def get_qr(ticket_uuid: TicketUUID, session: AsyncSession = Depends(get_se
     # return StreamingResponse(iter_file(payload), media_type='image/png')
 
 
-@router.post('/qr/check',
+@router.post('/meals',
              response_model=QRStatus,
              status_code=status.HTTP_200_OK,
-             summary='Проверить QR-код',
-             description='Проверяет QR-код')
-async def check_qr(file: UploadFile, session: AsyncSession = Depends(get_session)) -> Response:
+             summary='Сделать отметку о приёме пищи',
+             description='Проверяет что количество приёмов пищи не превышено и делает отметку о приёме пищи в БД')
+async def add_meal(file: UploadFile, session: AsyncSession = Depends(get_session)) -> Response:
     return await qr_check(file, session)

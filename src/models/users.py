@@ -21,7 +21,7 @@ class Ticket(Base):
                        ForeignKey('users.uuid', ondelete='CASCADE'),
                        nullable=False, unique=True)
     user = relationship(User, back_populates='ticket')
-    meals = relationship('Meal', back_populates='ticket')
+    meals = relationship('Meal', back_populates='ticket', lazy='joined')
 
 
 class Meal(Base):
