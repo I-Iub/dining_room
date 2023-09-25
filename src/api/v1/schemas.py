@@ -27,3 +27,8 @@ class TicketOut(TicketUUID):
 
 class MealIn(BaseModel):
     id: int
+
+
+class MealsOut(MealIn):
+    ticket_uuid: UUID
+    time: datetime.datetime

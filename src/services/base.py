@@ -16,6 +16,8 @@ from src.models.users import Meal, Ticket, User
 from src.services.qr import decode, get_image
 from src.services.utils import is_valid_uuid, make_response_message
 
+ITEMS_LIMIT = 1000
+
 
 async def create_user(name: str, session: AsyncSession) -> dict[str, str]:
     user_uuid = uuid4()
@@ -61,9 +63,7 @@ async def create_ticket(user: UserUUID, session: AsyncSession) -> dict[str, Any]
 
 
 async def retrieve_tickets(session: AsyncSession) -> list[dict[str, Any]]:
-    result = await session.execute(select(Ticket))
-    tickets = [ticket.__dict__ for ticket, *_ in result.unique().all()]
-    return tickets
+    return await retrieve_model_items(Ticket, session)
 
 
 async def ticket_delete(ticket: TicketUUID, session: AsyncSession) -> Response:
@@ -142,3 +142,13 @@ async def meal_delete(meal: MealIn, session):
     await session.execute(statement)
     await session.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+async def retrieve_meals(session: AsyncSession) -> list[dict[str, Any]]:
+    return await retrieve_model_items(Meal, session)
+
+
+async def retrieve_model_items(model: Base, session: AsyncSession) -> list[dict[str, Any]]:
+    result = await session.execute(select(model).limit(ITEMS_LIMIT))
+    items = [item.__dict__ for item, *_ in result.unique().all()]
+    return items
